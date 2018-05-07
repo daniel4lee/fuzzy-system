@@ -1,9 +1,11 @@
 """Build the tkinter gui root"""
 import math
 from PyQt5.QtWidgets import *#(QWidget, QToolTip, QDesktopWidget, QPushButton, QApplication)
-from PyQt5.QtGui import QFont 
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import QCoreApplication, QObject, QRunnable, QThread, QThreadPool, pyqtSignal, pyqtSlot 
 import sys
 from plot import PlotCanvas
+from run import CarRunning
 
 THREADS = []
 
@@ -12,6 +14,7 @@ class GuiRoot(QWidget):
     def __init__(self, dataset={}):
         """Create GUI root with datasets dict"""
         super().__init__()
+        self.threadpool = QThreadPool()
         self.setFixedSize(1000, 600)
         self.center()
         self.setWindowTitle('HW 1')      
@@ -150,7 +153,7 @@ class GuiRoot(QWidget):
         if self.radio_a_b.isChecked():
             print("2b")
         if self.radio_a_d.isChecked():
-            print("2d")
+            print("2d") 
         if self.radio_o_m.isChecked():
             print("3m")
         if self.radio_o_a.isChecked():
@@ -161,6 +164,11 @@ class GuiRoot(QWidget):
             print("3d")
         for i in range(9):
             print(self.sml_l[i].currentText())
+        car = CarRunning(self.file_choose.currentText())
+        car.signals.result.connect(self.print_output)
+        self.threadpool.start(car)
+    def print_output(self, s):
+        print(s)
     def center(self):
         """Place window in the center"""
         qr = self.frameGeometry()
