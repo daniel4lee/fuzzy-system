@@ -138,8 +138,7 @@ class GuiRoot(QWidget):
 
     def file_changed(self):
         """print map"""
-        self.m.ax.clear()
-        self.m.plot(self.file_choose.currentText())
+        self.m.plot_map(self.file_choose.currentText())
     def run(self):
         text = self.file_choose.currentText()
         if self.radio_d.isChecked():
@@ -165,10 +164,10 @@ class GuiRoot(QWidget):
         for i in range(9):
             print(self.sml_l[i].currentText())
         car = CarRunning(self.file_choose.currentText())
-        car.signals.result.connect(self.print_output)
+        car.signals.result.connect(self.plot_output)
         self.threadpool.start(car)
-    def print_output(self, s):
-        print(s)
+    def plot_output(self, s):
+        self.m.plot_car(s)
     def center(self):
         """Place window in the center"""
         qr = self.frameGeometry()

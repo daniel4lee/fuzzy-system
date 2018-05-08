@@ -7,15 +7,6 @@ class counting():
         temp = -((x-m)**2)
         temp = temp/(2*(o**2))
         return math.exp(temp) 
-    def sfun(self, x, a, b):
-        if x < a:
-            return 0
-        elif a <= x and x < (a+b)/2:
-            return 2*(((x-a)/(b-a))**2)
-        elif (a+b)/2 <= x and x < b:
-            return 1-(2*(((x-b)/(b-a))**2))
-        elif b <= x:
-            return 1    
     def ANDop(self, mode, a, b):
         if mode=='m':
             return min(a,b)
