@@ -27,19 +27,36 @@ class PlotCanvas(FigureCanvas):
         self.plot_map(imap)
     def plot_map(self, imap):
         self.ax.clear()
+
+        # creating end area polygon for drawing
+        ea = []
+        ea.append([self.dataset["{}".format(imap)].x[0], self.dataset["{}".format(imap)].y[0]])
+        ea.append([self.dataset["{}".format(imap)].x[0], self.dataset["{}".format(imap)].y[1]])
+        ea.append([self.dataset["{}".format(imap)].x[1], self.dataset["{}".format(imap)].y[1]])
+        ea.append([self.dataset["{}".format(imap)].x[1], self.dataset["{}".format(imap)].y[0]])
+        end_area = shapely.geometry.Polygon(shapely.geometry.LineString(ea))
+
+        # creating map line for drawing
         verts = []
         for i in range(2, len(self.dataset["{}".format(imap)].x)):
                 verts.append([self.dataset["{}".format(imap)].x[i], self.dataset["{}".format(imap)].y[i]])
         line = shapely.geometry.LineString(verts)
-        inicar = shapely.geometry.Point(self.dataset["{}".format(imap)].start[0], self.dataset["{}".format(imap)].start[1]).buffer(3)
+
+        # initial car and dir line
+        inicar = shapely.geometry.Point(self.dataset["{}".format(imap)].start[0], self.dataset["{}".format(imap)].start[1]).buffer(13)
         fxpoint = (self.dataset["{}".format(imap)].start[0] + 4*(math.cos(self.dataset["{}".format(imap)].start[2]*math.pi/180)))
         fypoint = (self.dataset["{}".format(imap)].start[0] + 4*(math.sin(self.dataset["{}".format(imap)].start[2]*math.pi/180)))
-        #print(fxpoint, fypoint) the dir
-        inidir = [[self.dataset["{}".format(imap)].start[0], self.dataset["{}".format(imap)].start[1]], [fxpoint, fypoint]]
+        inidir = [[self.dataset["{}".format(imap)].start[0], self.dataset["{}".format(imap)].start[1]], [15.6,10.88]]
+
+        # plot on figurecanvas
         self.ax.plot(*np.array(line).T, color='blue', linewidth=3, solid_capstyle='round')
-        self.dir = self.ax.plot(*np.array(inidir).T, color='blue', linewidth=3, solid_capstyle='round')
+        self.ax.add_patch(descartes.PolygonPatch(end_area, fc='red', alpha=0.5))
+        self.dir = self.ax.plot(*np.array(inidir).T, color='red', linewidth=3, solid_capstyle='round')
         self.car = self.ax.add_patch(descartes.PolygonPatch(inicar, fc='blue', alpha=0.5))
         self.ax.autoscale(enable=True, axis='both', tight=None)
+        i = inicar.intersection(line)
+        if(not i):
+            print("i:",i)
         self.draw()
     def plot_car(self, list6d):
         for i in range(0, int(len(list6d[0]))):
@@ -50,8 +67,6 @@ class PlotCanvas(FigureCanvas):
             self.car = self.ax.add_patch(descartes.PolygonPatch(newcar, fc='blue', alpha=0.5))
 
             self.draw()
-            print("print")
             loop = QEventLoop()
-            QTimer.singleShot(200, loop.quit)
+            QTimer.singleShot(1200, loop.quit)
             loop.exec_()
-

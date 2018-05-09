@@ -11,7 +11,7 @@ THREADS = []
 
 class GuiRoot(QWidget):
     """Root of gui."""
-    def __init__(self, dataset={}):
+    def __init__(self, dataset):
         """Create GUI root with datasets dict"""
         super().__init__()
         self.threadpool = QThreadPool()
@@ -19,9 +19,9 @@ class GuiRoot(QWidget):
         self.center()
         self.setWindowTitle('HW 1')      
         self.show()
-        datalist = dataset.keys()
-        data = dataset
-        self.file_run_creation(datalist)
+        self.datalist = dataset.keys()
+        self.data = dataset
+        self.file_run_creation(self.datalist)
         self.operation_type_creation()
         self.fuzzy_rule_setting_creation()
         hbox = QHBoxLayout()
@@ -30,7 +30,7 @@ class GuiRoot(QWidget):
         vbox.addWidget(self.operation_type)
         vbox.addWidget(self.fuzzy_rules)
         hbox.addLayout(vbox)
-        self.m = PlotCanvas(dataset)
+        self.m = PlotCanvas(self.data)
         hbox.addWidget(self.m)
         self.setLayout(hbox)
 
@@ -141,29 +141,31 @@ class GuiRoot(QWidget):
         self.m.plot_map(self.file_choose.currentText())
     def run(self):
         text = self.file_choose.currentText()
+        checked_op = []
         if self.radio_d.isChecked():
-            print("1d")
-        if self.radio_z.isChecked():
-            print("1z")
+            checked_op.append('1d')
+        elif self.radio_z.isChecked():
+            checked_op.append('1z')
         if self.radio_a_m.isChecked():
-            print("2m")
-        if self.radio_a_a.isChecked():
-            print("2a")
-        if self.radio_a_b.isChecked():
-            print("2b")
-        if self.radio_a_d.isChecked():
-            print("2d") 
+            checked_op.append("2m")
+        elif self.radio_a_a.isChecked():
+            checked_op.append("2a")
+        elif self.radio_a_b.isChecked():
+            checked_op.append("2b")
+        elif self.radio_a_d.isChecked():
+            checked_op.append("2d") 
         if self.radio_o_m.isChecked():
-            print("3m")
-        if self.radio_o_a.isChecked():
-            print("3a")
-        if self.radio_o_b.isChecked():
-            print("3b")
-        if self.radio_o_d.isChecked():
-            print("3d")
+            checked_op.append("3m")
+        elif self.radio_o_a.isChecked():
+            checked_op.append("3a")
+        elif self.radio_o_b.isChecked():
+            checked_op.append("3b")
+        elif self.radio_o_d.isChecked():
+            checked_op.append("3d")
+        selected_fuzzy = []
         for i in range(9):
-            print(self.sml_l[i].currentText())
-        car = CarRunning(self.file_choose.currentText())
+            selected_fuzzy.append(self.sml_l[i].currentText())
+        car = CarRunning(checked_op, selected_fuzzy, self.data, text)
         car.signals.result.connect(self.plot_output)
         self.threadpool.start(car)
     def plot_output(self, s):

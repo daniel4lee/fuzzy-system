@@ -9,9 +9,8 @@ from PyQt5.QtWidgets import QApplication
 from gui_root import GuiRoot
 def main():
     """Read data as dictionary"""
-    data = read_file()
     app = QApplication(sys.argv)
-    gui_root = GuiRoot(data)
+    gui_root = GuiRoot(read_file())
     sys.exit(app.exec_())
 def read_file():
     """Read txt file in same location"""
