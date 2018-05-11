@@ -1,3 +1,6 @@
+import os
+from os.path import join, isfile
+
 import math
 import numpy as np
 from PyQt5.QtWidgets import *#(QWidget, QToolTip, QDesktopWidget, QPushButton, QApplication)
@@ -43,10 +46,10 @@ class PlotCanvas(FigureCanvas):
         line = shapely.geometry.LineString(verts)
 
         # initial car and dir line
-        inicar = shapely.geometry.Point(self.dataset["{}".format(imap)].start[0], self.dataset["{}".format(imap)].start[1]).buffer(13)
+        inicar = shapely.geometry.Point(self.dataset["{}".format(imap)].start[0], self.dataset["{}".format(imap)].start[1]).buffer(3)
         fxpoint = (self.dataset["{}".format(imap)].start[0] + 4*(math.cos(self.dataset["{}".format(imap)].start[2]*math.pi/180)))
         fypoint = (self.dataset["{}".format(imap)].start[0] + 4*(math.sin(self.dataset["{}".format(imap)].start[2]*math.pi/180)))
-        inidir = [[self.dataset["{}".format(imap)].start[0], self.dataset["{}".format(imap)].start[1]], [15.6,10.88]]
+        inidir = [[self.dataset["{}".format(imap)].start[0], self.dataset["{}".format(imap)].start[1]], [fxpoint,fypoint]]
 
         # plot on figurecanvas
         self.ax.plot(*np.array(line).T, color='blue', linewidth=3, solid_capstyle='round')
@@ -59,6 +62,16 @@ class PlotCanvas(FigureCanvas):
             print("i:",i)
         self.draw()
     def plot_car(self, list6d):
+        outpath = join(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))), "train6D.txt")
+        with open(outpath, "w") as fp:
+            for i in range(0, int(len(list6d[0]))):
+                s = ''
+                for j in range(6):
+                    if j == 5:
+                        s = s + str(list6d[j][i])
+                    else:
+                        s = s + str(list6d[j][i]) + ' '
+                fp.write(s+'\n')
         for i in range(0, int(len(list6d[0]))):
             #self.dir[0].remove()
             self.car.remove()
@@ -68,5 +81,5 @@ class PlotCanvas(FigureCanvas):
 
             self.draw()
             loop = QEventLoop()
-            QTimer.singleShot(1200, loop.quit)
+            QTimer.singleShot(200, loop.quit)
             loop.exec_()
