@@ -26,9 +26,12 @@ class CarRunning(QRunnable):
         """
         Run this function 
         """
-        trace6d = []
-        for i in range(6):
-            trace6d.append([])
+         # trace data [0] = car center x, [1] = car center y, [2] = direction length, 
+         # [3] = right length, [4] = left length, [5] = thita, [6] = direct point on map line
+         # [7] = right point on map line, [8] left point on map line, [9] the angle between dir car and horizontal
+        trace_10d = []
+        for i in range(10):
+            trace_10d.append([])
 
         # creat end area by shapely
         end_area = []
@@ -48,12 +51,14 @@ class CarRunning(QRunnable):
         car = sp.Point(*car_center).buffer(3)
         # main loop for computing through fuzzy architecture
         while(not car.intersection(map_line)):
-            '''if(car.intersection(end_area)):
-                print("end!!")
-                break'''
-            # return signal here !!
+
+            # let data list[1] be 1 longer as signal here !!
+            if(end_area.contains(sp.Point(car_center))):
+                trace_10d[1].append(0)
+                break
+                
             # creat car circle polygon by shapely and initial it, r, x, y
-            if (len(trace6d[0]) == 0):
+            if (len(trace_10d[0]) == 0):
                 # count the distance
                 max_px = max_py = -M.inf
                 min_px = min_py = M.inf
@@ -81,8 +86,9 @@ class CarRunning(QRunnable):
                 y = car_center[1]
                 fai = fai - M.degrees(M.asin(2*M.sin(M.radians(output))/6))
             ##
-            trace6d[0].append(x)
-            trace6d[1].append(y)
+            trace_10d[0].append(x)
+            trace_10d[1].append(y)
+            trace_10d[9].append(fai)
             # dir, l, r line for counting intersection
 
             dir_line = [
@@ -94,16 +100,22 @@ class CarRunning(QRunnable):
 
             # First, computing the dir, l, and r distance between car and wall
             temp = sp.LineString(dir_line).intersection(map_line)
-            dir_dist = self.distance(temp, car_center)
-            temp = sp.LineString(l_line).intersection(map_line)
-            l_dist = self.distance(temp, car_center)
+            temp = self.distance(temp, car_center)
+            dir_dist = temp[0]
+            trace_10d[6].append(temp[1])
             temp = sp.LineString(r_line).intersection(map_line)
-            r_dist = self.distance(temp, car_center)
+            temp = self.distance(temp, car_center)
+            r_dist = temp[0]
+            trace_10d[7].append(temp[1])
+            temp = sp.LineString(l_line).intersection(map_line)
+            temp = self.distance(temp, car_center)
+            l_dist = temp[0]
+            trace_10d[8].append(temp[1])
 
             ### record distace set in trace6d ###
-            trace6d[2].append(dir_dist)
-            trace6d[3].append(r_dist)
-            trace6d[4].append(l_dist)
+            trace_10d[2].append(dir_dist)
+            trace_10d[3].append(r_dist)
+            trace_10d[4].append(l_dist)
 
             # define front distance function and computing firing strength
             front_small = self.g_decreasing_funct(dir_dist, 5, 5)
@@ -155,12 +167,12 @@ class CarRunning(QRunnable):
             if base != 0:
                 output = up/base
             ### record wheel angle in trace6d ###
-            trace6d[5].append(output)
+            trace_10d[5].append(output)
             # clear paremeter
             rule.clear()
             output_l.clear()
 
-        self.signals.result.emit(trace6d)
+        self.signals.result.emit(trace_10d)
 
     def gfun(self, x, m, o):
         return M.exp(-(x - m)**2 / o**2)
@@ -195,11 +207,18 @@ class CarRunning(QRunnable):
         if isinstance(points, sp.MultiPoint):
             min_dis = ((points[0].x - car_loc[0])**2 +
                        (points[0].y - car_loc[1])**2)**(1/2)
+            min_point = (points[0].x, points[0].y)
             for i in range(1, len(points)):
                 temp = ((points[i].x - car_loc[0])**2 +
                         (points[i].y - car_loc[1])**2)**(1/2)
                 if(temp < min_dis):
                     min_dis = temp
-            return min_dis
+                    min_point = (points[i].x, points[i].y)
+            l = [min_dis, min_point]
+            return l
         elif isinstance(points, sp.Point):
-            return ((points.x - car_loc[0])**2 + (points.y - car_loc[1])**2)**(1/2)
+            l = []
+            l.append(((points.x - car_loc[0])**2 + (points.y - car_loc[1])**2)**(1/2))
+            min_point = (points.x, points.y)
+            l.append(min_point)
+            return l

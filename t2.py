@@ -1,3 +1,3 @@
-def a (b):
-    print(b-2)
-a(float('{:.1f}'.format(0.5453)))
+a = (1, 2)
+b = (3.1, 4.4)
+print(*zip(a, b))
