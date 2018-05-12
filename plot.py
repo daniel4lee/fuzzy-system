@@ -68,9 +68,9 @@ class PlotCanvas(FigureCanvas):
                 s = ''
                 for j in range(6):
                     if j == 5:
-                        s = s + str(list6d[j][i])
+                        s = s + str('{:.7f}'.format(list6d[j][i]))
                     else:
-                        s = s + str(list6d[j][i]) + ' '
+                        s = s + str('{:.7f}'.format(list6d[j][i])) + ' '
                 fp.write(s+'\n')
         for i in range(0, int(len(list6d[0]))):
             #self.dir[0].remove()
