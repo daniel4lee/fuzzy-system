@@ -63,6 +63,8 @@ class PlotCanvas(FigureCanvas):
 
         self.ax.autoscale(enable=True, axis='both', tight=None)# uncheck
         self.draw()
+        self.dir.remove()
+        self.car.remove()
     def plot_car(self, list9d):
         # represent that it arrived the end area, hence output an txt file
         if ( len(list9d[0]) != len(list9d[1])):
@@ -77,28 +79,30 @@ class PlotCanvas(FigureCanvas):
                             s = s + str('{:.7f}'.format(list9d[j][i])) + ' '
                     fp.write(s+'\n')
         # produce the animation according to the trace9d log
+
         for i in range(0, len(list9d[0])):
-            self.dir.remove()
-            self.car.remove()
-            if(i > 0):
-                try:
-                    pass
-                except ValueError:
-                    pass
+
+
             if ( len(list9d[0]) != len(list9d[1])) and (i+1 == len(list9d[0])):
-                newcar = shapely.geometry.Point(list9d[0][i],list9d[1][i] ).buffer(3)
+                self.car_center = (list9d[0][i], list9d[1][i])
+                newcar = shapely.geometry.Point(*self.car_center).buffer(3)
                 self.car = self.ax.add_patch(descartes.PolygonPatch(newcar, fc='lime', alpha=0.8))
 
-            self.car_center = (list9d[0][i], list9d[1][i])
-            newcar = shapely.geometry.Point(*self.car_center).buffer(3)
-            self.car = self.ax.add_patch(descartes.PolygonPatch(newcar, fc='royalblue', alpha=0.5))
+            elif ( len(list9d[0]) == len(list9d[1])) and (i+1 == len(list9d[0])):
+                self.car_center = (list9d[0][i], list9d[1][i])
+                newcar = shapely.geometry.Point(*self.car_center).buffer(3)
+                self.car = self.ax.add_patch(descartes.PolygonPatch(newcar, fc='r', alpha=1))
+            else:
+                self.car_center = (list9d[0][i], list9d[1][i])
+                newcar = shapely.geometry.Point(*self.car_center).buffer(3)
+                self.car = self.ax.add_patch(descartes.PolygonPatch(newcar, fc='royalblue', alpha=0.5))
+
 
             self.dir_point = ( 4*(math.cos(math.radians(list9d[9][i]))), 4*(math.sin(math.radians(list9d[9][i]))))
             self.dir = self.ax.arrow(*self.car_center, *self.dir_point, head_width=1, head_length=1, fc='gold', ec='k')
 
             front_point = ( self.car_center[0] + 3*(math.cos(math.radians(list9d[9][i]))), 
             self.car_center[1] + 3*(math.sin( math.radians(list9d[9][i]) )) )
-            #front_line = self.ax.addline(*np.array([[*front_point], [*list9d[6]]]).T, color='navy', linewidth=1)
             front_line = self.ax.plot([front_point[0], list9d[6][i][0]],[front_point[1], list9d[6][i][1]], linestyle='--', color='navy')
 
             right_point = ( self.car_center[0] + 3*(math.cos(math.radians(list9d[9][i]-45))), 
@@ -112,7 +116,8 @@ class PlotCanvas(FigureCanvas):
             front_line[0].remove()
             right_line[0].remove()
             left_line[0].remove()
-            
+            self.dir.remove()
+            self.car.remove()
             loop = QEventLoop()
-            QTimer.singleShot(10, loop.quit)
+            QTimer.singleShot(50, loop.quit)
             loop.exec_()
