@@ -13,13 +13,12 @@ class CarRunning(QRunnable):
     work thread, will execute "run" first
     """
 
-    def __init__(self, oplist, fuzzylist, data, filename):
+    def __init__(self, data, filename, fuzzylist, fuzzy_variable):
         super(CarRunning, self).__init__()
         self.data = data[filename]
-        self.fuzzylist = fuzzylist
+        self.fuzzylist = fuzzylist # small, medium, large
+        self.fuzzy_variable = fuzzy_variable # mean and sd
         self.signals = RunSignals()
-
-        self.oplist = oplist  # temp not used
 
     @pyqtSlot()
     def run(self):
@@ -35,11 +34,12 @@ class CarRunning(QRunnable):
 
         # creat end area by shapely
         end_area = []
-        end_area.append([self.data.x[0], self.data.y[0]])
-        end_area.append([self.data.x[1], self.data.y[0]])
-        end_area.append([self.data.x[0], self.data.y[1]])
-        end_area.append([self.data.x[1], self.data.y[1]])
-        end_area = sp.Polygon(sp.LineString(end_area))
+        end_area.append((self.data.x[0], self.data.y[0]))
+        end_area.append((self.data.x[1], self.data.y[0]))
+        end_area.append((self.data.x[1], self.data.y[1]))
+        end_area.append((self.data.x[0], self.data.y[1]))
+        end_area = sp.Polygon(end_area)
+        
 
         # creat map line by shapely
         map_line = []
@@ -118,15 +118,15 @@ class CarRunning(QRunnable):
             trace_10d[4].append(l_dist)
 
             # define front distance function and computing firing strength
-            front_small = self.g_decreasing_funct(dir_dist, 5, 5)
-            front_medium = self.gfun(dir_dist, 12, 5)
-            front_large = self.gufun(dir_dist, 20, 5)
+            front_small = self.g_decreasing_funct(dir_dist, self.fuzzy_variable[0], self.fuzzy_variable[1])
+            front_medium = self.gfun(dir_dist, self.fuzzy_variable[2], self.fuzzy_variable[3])
+            front_large = self.gufun(dir_dist, self.fuzzy_variable[4], self.fuzzy_variable[5])
 
             # define left-right distance function and computing firing strength
             l_r = l_dist-r_dist
-            lr_s = self.g_decreasing_funct(l_r, -10, 5)
-            lr_m = self.gfun(l_r, 0, 5)
-            lr_l = self.gufun(l_r, 10, 5)
+            lr_s = self.g_decreasing_funct(l_r, self.fuzzy_variable[6], self.fuzzy_variable[7])
+            lr_m = self.gfun(l_r, self.fuzzy_variable[8], self.fuzzy_variable[9])
+            lr_l = self.gufun(l_r, self.fuzzy_variable[10], self.fuzzy_variable[11])
 
             # define consequence function and computing firing strength
             rule = []
@@ -134,18 +134,11 @@ class CarRunning(QRunnable):
                 rule.append([])
             # totall z in range of 81
             for z in range(-400, 410):
-                r_s = self.g_decreasing_funct(z/10, -10, 20)
-                r_m = self.gfun(z/10, 0, 20)
-                r_l = self.gufun(z/10, 10, 20)
-                rule[0].append(r_l)
-                rule[1].append(r_s)
-                rule[2].append(r_s)
-                rule[3].append(r_l)
-                rule[4].append(r_s)
-                rule[5].append(r_s)
-                rule[6].append(r_l)
-                rule[7].append(r_s)
-                rule[8].append(r_s)
+                r_s = self.g_decreasing_funct(z/10, self.fuzzy_variable[12], self.fuzzy_variable[13])
+                r_m = self.gfun(z/10, self.fuzzy_variable[14], self.fuzzy_variable[15])
+                r_l = self.gufun(z/10, self.fuzzy_variable[16], self.fuzzy_variable[17])
+                for b in range(9):
+                    self.fuzzy_assign(rule[b], self.fuzzylist[b], r_s, r_m, r_l)
 
             # output computing
             output_l = []
@@ -202,6 +195,13 @@ class CarRunning(QRunnable):
             return max(1-a, b)
         elif mode == 'z':
             return max(min(a, b), 1-a)
+    def fuzzy_assign(self, rule_value_list, rule_description, s, m, l):
+        if(rule_description == 'small'):
+            rule_value_list.append(s)
+        elif(rule_description == 'medium'):
+            rule_value_list.append(m)
+        elif(rule_description == 'large'):
+            rule_value_list.append(l)
 
     def distance(self, points, car_loc):
         if isinstance(points, sp.MultiPoint):
