@@ -1,6 +1,5 @@
 import os
 from os.path import join, isfile
-from pathlib import Path
 
 import math
 import numpy as np
@@ -87,10 +86,10 @@ class PlotCanvas(FigureCanvas):
         except ValueError:
             pass
         # represent that it arrived the end area, hence output an txt file
-        
         if (len(list9d[0]) != len(list9d[1])):
-            #outpath = join(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))), "train4D.txt")
-            with open('train4D.txt', "w") as fp:
+            '''outpath = join(os.path.realpath(os.path.join(
+                os.getcwd(), os.path.dirname(__file__))), "train4D.txt")'''
+            with open("train4D.txt", "w") as fp:
                 for i in range(0, int(len(list9d[0]))):
                     s = ''
                     for j in range(2, 6):
@@ -100,9 +99,9 @@ class PlotCanvas(FigureCanvas):
                             s = s + str('{:.7f}'.format(list9d[j][i])) + ' '
                     fp.write(s+'\n')
         if (len(list9d[0]) != len(list9d[1])):
-            outpath = join(os.path.realpath(os.path.join(
-                os.getcwd(), os.path.dirname(__file__))), "train6D.txt")
-            with open(outpath, "w") as fp:
+            '''outpath = join(os.path.realpath(os.path.join(
+                os.getcwd(), os.path.dirname(__file__))), "train6D.txt")'''
+            with open("train6D.txt", "w") as fp:
                 for i in range(0, int(len(list9d[0]))):
                     s = ''
                     for j in range(6):
