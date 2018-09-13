@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QCoreApplication, QObject, QRunnable, QThread, QThreadPool, pyqtSignal, pyqtSlot
 import sys
-from plot import PlotCanvas
-from run import CarRunning
+from fuzzy_system.counting.plot import PlotCanvas
+from fuzzy_system.counting.run import CarRunning
 
 THREADS = []
 

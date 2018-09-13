@@ -23,7 +23,9 @@ The fuzzy rule base uses the Mamdani fuzzy rule, and to avoid too complex the "a
 See here for more details about experiments and analysis.
 ## Installation
 
-
+```git bash
+git clone https://github.com/daniel4lee/fuzzy-system.git
+```
 
 ## Test Customized Map
 
@@ -83,30 +85,7 @@ The coordinates after the third line are the corner points of the walls in the m
 
 - [numpy](http://www.numpy.org/)
 
-``` bash
-pip3 install numpy
-```
-
 - [PyQt5](https://pypi.org/project/PyQt5/)
-
-``` bash
-pip3 install PyQt5
-```
-
 - [Shapely](https://pypi.org/project/Shapely/)
-
-``` bash
-pip3 install Shapely
-```
-
 - [descartes](https://pypi.org/project/descartes/)
-
-``` bash
-pip3 install descartes
-```
-
 - [matplotlib](https://matplotlib.org/)
-
-``` bash
-pip3 install matplotlib
-```

@@ -6,7 +6,7 @@ from os.path import join, isfile
 from collections import namedtuple
 import sys
 from PyQt5.QtWidgets import QApplication
-from gui_root import GuiRoot
+from fuzzy_system.gui.gui_root import GuiRoot
 def main():
     """Read data as dictionary"""
     app = QApplication(sys.argv)
