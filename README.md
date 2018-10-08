@@ -4,6 +4,8 @@ A car simulator to simulate the car movements with the fuzzy system.
 
 ![preview](https://imgur.com/XxzmuaQ.gif)
 
+## Default setting
+
 The inputs of the fuzzy system are front, 45 degrees left and right distance between the car and the wall. The output is the rotation angle of the steering wheel.
 
 The simulated car is set as a circle which has a radius of 3 unit, and initial direction is +90 degree.
@@ -20,11 +22,19 @@ The fuzzy system uses the custom nine fuzzy rules and discrete center of gravity
 
 The fuzzy rule base uses the Mamdani fuzzy rule, and to avoid too complex the "antecedent or premise" only take two fuzzy variables (front distance and left-right distance). The "consequence or conclusion" set one fuzzy variable, steering wheel angle.
 
-See here for more details about experiments and analysis.
+See [here](https://docs.google.com/document/d/164zeJNkSDSpMjxyjhQvf0cv7rn15wAfv5xkW5vL7h1g/edit?usp=sharing) for more details about experiments and analysis.
 ## Installation
 
+1. download the project
+
 ```git bash
-git clone https://github.com/daniel4lee/fuzzy-system.git
+    git clone https://github.com/daniel4lee/fuzzy-system.git
+```
+
+2. Change directory to the root of the project and run with Python interpreter.
+
+```git bash
+    python main.py
 ```
 
 ## Test Customized Map
